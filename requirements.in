@@ -1,0 +1,11 @@
+aiohttp
+bs4
+flask
+flask-cors
+flask-httpauth
+flask-restful
+gunicorn
+python-dateutil
+pytz
+pytest
+requests
