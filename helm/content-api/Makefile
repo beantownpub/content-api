@@ -62,14 +62,6 @@ install:
 		--namespace $(namespace) \
 		--set image.tag=$(tag) \
 		--set global.env=$(env) \
-		--set kafka_bootstrap_server=${KAFKA_BOOTSTRAP_SERVER} \
-		--set kafka_password=${KAFKA_PASSWORD} \
-		--set kafka_username=${KAFKA_USERNAME} \
-		--set session_secret=${SESSION_SECRET} \
-		--set square_access_token_dev=${SQUARE_ACCESS_TOKEN_DEV} \
-		--set square_access_token_prod=${SQUARE_ACCESS_TOKEN_PROD} \
-		--set square_application_id_sandbox=${SQUARE_APPLICATION_ID_SANDBOX} \
-		--set square_url=$(square_url) \
 		--set logLevel=$(logLevel) \
 		--debug
 
@@ -86,14 +78,3 @@ template:
 		--debug
 
 .ONESHELL: port_forward
-
-port_forward:
-	kubectl port-forward --namespace $(namespace) svc/$(name) $(port):$(port)
-
-
-stop_pf:
-	./scripts/stop_port_forward.sh 3000
-
-logs:
-	./scripts/get_pod_logs.sh $(namespace) $(name)
-
