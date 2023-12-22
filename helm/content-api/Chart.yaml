@@ -3,6 +3,13 @@ name: content-api
 description: Content API deployment
 type: application
 version: 0.1.0
-appVersion: 0.1.0
+appVersion: 0.1.0-7d42ffc 
 sources:
 - https://github.com/beantownpub/content-api
+
+dependencies:
+  - name: postgres
+    version: 0.1.4
+    repository: https://beantownpub.github.io/helm/
+    condition: database.enabled
+    namespace: database

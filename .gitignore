@@ -130,3 +130,6 @@ dmypy.json
 
 # Custom
 .DS_Store
+tmp*
+prev-requirements.txt
+helm/content-api/charts/

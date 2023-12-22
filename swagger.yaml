@@ -1,0 +1,149 @@
+openapi: 3.0.0
+info:
+  version: 0.1.0
+  title: Content API
+  description: An API for interacting with various content
+
+servers:
+  - url: http://content-api/v1
+
+security:
+  - BasicAuth: []
+
+paths:
+  /Content/categories:
+    get:
+      description: Returns a list food items from a category
+      parameters:
+        - $ref: '#/components/parameters/PageLimit'
+        - $ref: '#/components/parameters/PageOffset'
+      responses:
+        '200':
+          description: Successfully returned a list of messages
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ContentItem'
+        '400':
+          $ref: '#/components/responses/400Error'
+
+    post:
+      description: Create a new category
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ContentItem'
+
+      responses:
+        '200':
+          description: Successfully returned food items
+
+        '400':
+          $ref: '#/components/responses/400Error'
+
+  /Content/items:
+    get:
+      description: Return a single food item
+      parameters:
+        - name: name
+          in: path
+          required: true
+          schema:
+            type: object
+            items:
+              $ref: '#/components/schemas/ContentItem'
+        - name: location
+          in: path
+          required: true
+          schema:
+            type: string
+
+      responses:
+        '200':
+          description: Successfully returned a message
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  name:
+                    type: string
+                  phone_number:
+                    type: string
+                  email_address:
+                    type: integer
+                  details:
+                    type: string
+
+        '400':
+          $ref: '#/components/responses/400Error'
+
+components:
+  securitySchemes:
+    BasicAuth:
+      type: http
+      scheme: basic
+  schemas:
+    ContentItem:
+      type: object
+      required:
+        - username
+      properties:
+        name:
+          type: string
+        slug:
+          type: string
+        description:
+          type: string
+        price:
+          type: string
+        is_active:
+          type: any
+        category:
+          type: string
+    Category:
+      type: object
+      required:
+        - username
+      properties:
+        name:
+          type: string
+        slug:
+          type: string
+        description:
+          type: string
+        price:
+          type: string
+        is_active:
+          type: any
+        category:
+          type: string
+  parameters:
+    PageLimit:
+      name: limit
+      in: query
+      description: Limits the number of items on a page
+      schema:
+        type: integer
+
+    PageOffset:
+      name: offset
+      in: query
+      description: Specifies the page number of the messages to be displayed
+      schema:
+        type: integer
+
+  responses:
+    400Error:
+      description: Invalid request
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              message:
+                type: string

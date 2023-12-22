@@ -22,43 +22,18 @@ spec:
     spec:
       containers:
       - env:
-        - name: API_USERNAME
-          valueFrom:
-            secretKeyRef:
-              key: api_user
-              name: app-creds
-        - name: API_PASSWORD
-          valueFrom:
-            secretKeyRef:
-              key: api_pass
-              name: app-creds
+        - name: AWS_SECRET_NAME
+          value: {{ .Values.aws.secretName }}
+        - name: AWS_DEFAULT_REGION
+          value: {{ .Values.aws.region }}
         - name: LOG_LEVEL
           value: {{ .Values.logLevel }}
-        - name: CONTACT_API_HOST
-          valueFrom:
-            secretKeyRef:
-              key: contact_api_host
-              name: services
-        - name: CONTACT_API_PORT
-          valueFrom:
-            secretKeyRef:
-              key: contact_api_port
-              name: services
-        - name: CONTACT_API_PROTOCOL
-          valueFrom:
-            secretKeyRef:
-              key: contact_api_protocol
-              name: services
-        - name: USERS_API_HOST
-          valueFrom:
-            secretKeyRef:
-              key: users_api_host
-              name: services
-        - name: USERS_API_PROTOCOL
-          valueFrom:
-            secretKeyRef:
-              key: users_api_protocol
-              name: services
+        {{- if eq .Values.global.env "dev" }}
+        - name: AWS_ACCESS_KEY_ID
+          value: {{ .Values.aws.accessKeyId }}
+        - name: AWS_SECRET_ACCESS_KEY
+          value: {{ .Values.aws.secretAccessKey }}
+        {{- end }}
       {{- if eq .Values.global.env "dev" }}
         image: "content-api:{{ .Values.image.tag | default .Chart.AppVersion }}"
         imagePullPolicy: Never
@@ -86,20 +61,8 @@ spec:
           periodSeconds: 60
         readinessProbe:
           httpGet:
-            path: /healthz
+            path: /v1/content/healthz
             port: tcp-content
           initialDelaySeconds: 15
           failureThreshold: 3
           periodSeconds: 10
-      - image: redis
-        imagePullPolicy: IfNotPresent
-        name: redis
-        ports:
-        - containerPort: 6379
-          name: tcp-redis
-          protocol: TCP
-        securityContext:
-          allowPrivilegeEscalation: false
-          privileged: false
-          readOnlyRootFilesystem: false
-          runAsNonRoot: false

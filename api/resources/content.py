@@ -34,5 +34,5 @@ class NFLContent(Resource):
         return Response(json.dumps(team_info.stats), mimetype="application/json", status=200)
 
     def options(self, location):
-        LOG.info("ContactAPI | OPTIONS | %s", location)
+        LOG.info("ContentAPI | OPTIONS | %s", location)
         return "", 200

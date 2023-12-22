@@ -14,7 +14,7 @@ URL = os.environ.get("SLACK_WEBHOOK_URL")
 
 
 class SlackAPIException(Exception):
-    """Base  class for order confirmation exceptions"""
+    """Base class for order confirmation exceptions"""
 
 
 @AUTH.verify_password

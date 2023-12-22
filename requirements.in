@@ -1,11 +1,15 @@
 aiohttp
+boto3
 bs4
 flask
 flask-cors
 flask-httpauth
+flask-migrate
 flask-restful
+flask-sqlalchemy
 gunicorn
+psycopg2
+pytest
 python-dateutil
 pytz
-pytest
 requests

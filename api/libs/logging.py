@@ -1,33 +1,22 @@
 import logging
 
 
-def get_formatter(log_level):
-    if log_level == "DEBUG":
-        formats = [
-            "%(asctime)s",
-            "%(levelname)s",
-            "%(module)s",
-            "%(funcName)s",
-            "%(message)s",
-        ]
-        formatter = logging.Formatter(" | ".join(formats), "%H:%M:%S")
-    else:
-        formatter = logging.Formatter(
-            "%(asctime)s | %(levelname)s | %(message)s", "%Y-%m-%d %H:%M:%S"
-        )
-    return formatter
+FORMATTER = logging.Formatter(
+    "{\"timestamp\": \"%(asctime)s\", \"level\": \"%(levelname)s\", \"module\": \"%(module)s\", \"function\": \"%(funcName)s\", \"message\": \"%(message)s\"}", "%Y-%m-%d %H:%M:%S"
+)
 
 
-def init_logger(log_level="INFO"):
+def init_logger(log_level=None):
     if __name__ != "__main__":
-        # app_log = json_logging.init_flask(enable_json=True)
-        # json_logging.init_request_instrument(app)
         app_log = logging.getLogger()
         gunicorn_logger = logging.getLogger("gunicorn.error")
         gunicorn_logger.handlers = []
         app_log.handlers = gunicorn_logger.handlers
         stream_handler = logging.StreamHandler()
-        stream_handler.setFormatter(get_formatter(log_level))
+        stream_handler.setFormatter(FORMATTER)
         app_log.addHandler(stream_handler)
-        app_log.setLevel(log_level)
+        if log_level:
+            app_log.setLevel(log_level)
+        else:
+            app_log.setLevel("INFO")
         return app_log

@@ -1,23 +1,20 @@
+appName: content-api
+aws:
+  accessKeyId:
+  secretAccessKey:
+  region:
+  secretName:
+database:
+  enabled: false
 image:
   repository: jalgraves/content-api
   pullPolicy: Always
   # Overrides the image tag whose default is the chart appVersion.
   tag: ""
 
-containerPort: 3033
+containerPort: 5033
 
 ingress:
   enabled: false
 
-logLevel: info
-
-nodeEnv: ""
-
-kafka_bootstrap_server:
-kafka_password:
-kafka_username:
-session_secret:
-square_access_token_dev:
-square_access_token_prod:
-square_application_id_sandbox:
-square_url:
+logLevel: INFO

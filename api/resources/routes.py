@@ -1,9 +1,6 @@
-from .content import NFLContent
 from .healthcheck import HealthCheckAPI
-from .slack import SlackAPI
-
+from .blog import BlogAPI
 
 def init_routes(api):
-    api.add_resource(NFLContent, "/v1/nfl/<team>")
-    api.add_resource(HealthCheckAPI, "/v1/contact/healthz")
-    api.add_resource(SlackAPI, "/v1/contact/slack")
+    api.add_resource(HealthCheckAPI, "/v1/content/healthz")
+    api.add_resource(BlogAPI, "/v1/content/blog")
