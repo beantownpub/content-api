@@ -19,14 +19,15 @@ def make_uuid():
 
 class ParamArgs:
     def __init__(self, args):
-        self.active_only = args.get('active_only')
         self.args = args
+        self.active_only = self._convert_to_bool(args.get('active_only'))
         self.author = args.get('author')
         self.inactive_only = args.get('inactive_only')
         self.is_active = args.get('is_active')
         self.title = args.get('title')
         self.slug = args.get('slug')
-        self.with_items = self._convert_to_bool(args.get('with_items'))
+        self.status = self.get_status()
+        self.uuid = args.get('uuid')
 
     def __repr__(self):
         return repr(self.map)
@@ -34,11 +35,13 @@ class ParamArgs:
     @property
     def map(self):
         args_dict = {
+            "active_only": self.active_only,
             "author": self.author,
             "title": self.title,
             "is_active": self.is_active,
             "slug": self.slug,
-            "with_items": self.with_items
+            "status": self.status,
+            "uuid": self.uuid
         }
         return args_dict
 

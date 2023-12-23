@@ -1,6 +1,7 @@
 import json
 import os
 
+from datetime import datetime
 from flask import Response, request
 from flask_httpauth import HTTPBasicAuth
 from flask_restful import Resource
@@ -46,32 +47,42 @@ def unauthorized():
 
 
 def post_to_dict(post):
-    LOG.info('Convert to dict %s', post.creation_date)
+    LOG.info('Creation date: %s', datetime.strftime(post.creation_date, "%Y-%m-%d"))
     post_dict = {
-        #'creation_date': post.creation_date,
+        'creation_date': datetime.strftime(post.creation_date, "%Y-%m-%d"),
         'title': post.title,
         'slug': post.slug,
+        'summary': post.summary,
         'uuid': post.uuid,
         'author': post.author,
         'body': post.body
     }
     return post_dict
 
+
 def get_post(title):
     posts = Post.query.filter_by(title=title).all()
     return posts
+
+
+def get_post_by_slug(slug):
+    post = Post.query.filter_by(slug=slug).first()
+    return post
+
 
 def get_posts():
     LOG.debug('CHECK | %s | Location: %s')
     return Post.query.all()
 
+
 def get_slug(args):
     slug = args.get('slug')
     return slug
 
-class BlogAPI(Resource):
+class BlogPostAPI(Resource):
     @AUTH.login_required
-    def post(self):
+    def post(self, slug):
+        LOG.info(slug)
         body = request.json
         post = get_post(body['title'])
         LOG.debug('[POST] Post: %s', body)
@@ -86,20 +97,44 @@ class BlogAPI(Resource):
             LOG.debug("[POST] 400 | Post %s already exists", post[0].slug)
             resp = {"status": 400, "response": f"post {post[0].slug} already exists"}
         return Response(**resp)
-
+    
     @AUTH.login_required
-    def get(self):
-        args = ParamArgs(request.args)
-        slug = args.slug
-        LOG.info('[GET] Slug: %s | Args: %s', slug, args)
-        posts = get_posts()
+    def get(self, slug):
+        post = get_post_by_slug(slug)
         posts_list = []
-        if posts:
-            for post in posts:
-                LOG.info('postsAPI | post: %s', post)
-                posts_list.append(post_to_dict(post))
+        if post:
+            posts_list.append(post_to_dict(post))
         return Response(json.dumps(posts_list), mimetype='application/json', status=200)
+    
+    @AUTH.login_required
+    def delete(self, slug):
+        LOG.info("[DELETE] %s", slug)
+        post = get_post(slug)
+        if not post:
+            LOG.info('404 DELETE Item Post %s not found', slug)
+            resp = {"status": 404, "response": "Post not found"}
+        else:
+            run_db_action(action='delete', item=post)
+            resp = {"status": 204, "response": "Post deleted"}
+        return Response(**resp)
 
     def create_item(self, body):
         LOG.debug('Adding %s to DB', body['slug'])
         run_db_action(action='create', body=body, table=TABLE)
+
+
+class BlogPostsAPI(Resource):
+    @AUTH.login_required
+    def get(self):
+        args = ParamArgs(request.args)
+        posts = get_posts()
+        posts_list = []
+        if posts:
+            if args.active_only:
+                for post in posts:
+                    if post.is_active:
+                        posts_list.append(post_to_dict(post))
+            else:
+                for post in posts:
+                    posts_list.append(post_to_dict(post))
+        return Response(json.dumps(posts_list), mimetype='application/json', status=200)
