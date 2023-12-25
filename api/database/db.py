@@ -8,10 +8,11 @@ LOG = init_logger(os.environ.get('LOG_LEVEL'))
 
 
 def init_database(app):
-    DB.init_app(app=app)
-    with app.app_context():
-        try:
-            DB.create_all()
-        except Exception as err:
-            LOG.error('Error initializing DBs: %s', err)
-            raise err
+  DB.init_app(app=app)
+  with app.app_context():
+    try:
+      DB.create_all()
+      LOG.info(dir(DB))
+    except Exception as err:
+      LOG.error('Error initializing DBs: %s', err)
+      raise err

@@ -26,6 +26,11 @@ helm/publish:
 		helm repo index . --url https://beantownpub.github.io/helm/ && \
 		git add content-api/
 
+## Helm dependencies update
+helm/du:
+	cd helm/content-api && \
+		helm dependencies update
+
 ## Deploy content-api to cluster
 helm/install: helm/context
 	cd helm/content-api && \
@@ -33,8 +38,8 @@ helm/install: helm/context
 		--namespace $(namespace) \
 		--set global.env=$(env) \
 		--set logLevel=$(logLevel) \
-		--set aws.accessKeyId="${CONTENT_API_AWS_ACCESS_KEY_ID}" \
-		--set aws.secretAccessKey="${CONTENT_API_AWS_SECRET_ACCESS_KEY}" \
+		--set aws.accessKeyId="${AWS_ACCESS_KEY_ID}" \
+		--set aws.secretAccessKey="${AWS_SECRET_ACCESS_KEY}" \
 		--set aws.secretName="${AWS_SECRET_NAME}" \
 		--set aws.region="${AWS_DEFAULT_REGION}" \
 		--debug
@@ -80,7 +85,8 @@ helm/port_forward: context
 helm/stop_pf: context
 	./scripts/stop_port_forward.sh $(port) || true
 
-helm/delete:
+## Uninstall deployment
+helm/uninstall:
 	kubectl config use-context $(context)
 	helm uninstall $(name) -n $(namespace)
 

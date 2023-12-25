@@ -1,4 +1,4 @@
-FROM python:3.9-slim-buster
+FROM python:3.11-slim-buster
 
 ENV TINI_VERSION v0.18.0
 
