@@ -61,7 +61,7 @@ def post_to_dict(post):
   return post_dict
 
 
-def get_post(title):
+def get_post_by_title(title):
   posts = Post.query.filter_by(title=title).all()
   return posts
 
@@ -71,8 +71,8 @@ def get_post_by_slug(slug):
   return post
 
 
-def get_posts():
-  LOG.debug('CHECK | %s | Location: %s')
+def get_all_posts():
+  LOG.info("Getting all posts")
   return Post.query.all()
 
 
@@ -82,15 +82,14 @@ def get_slug(args):
 
 class BlogPostAPI(Resource):
   @AUTH.login_required
-  def post(self, slug):
-    LOG.info(slug)
+  def post(self, slug=None):
+    LOG.info('[POST] Post: %s', slug)
     body = request.json
-    post = get_post(body['title'])
-    LOG.debug('[POST] Post: %s', body)
+    post = get_post_by_title(body["title"])
     if not post:
       body['slug'] = make_slug(body['title'])
       if not body.get('uuid'):
-          body['uuid'] = make_uuid()
+        body['uuid'] = make_uuid()
       LOG.debug("PATH %s | Slug: %s", request.path, body['slug'])
       self.create_item(body)
       resp = {"status": 201}
@@ -127,8 +126,9 @@ class BlogPostAPI(Resource):
 class BlogPostsAPI(Resource):
   @AUTH.login_required
   def get(self):
+    LOG.info("WTF")
     args = ParamArgs(request.args)
-    posts = get_posts()
+    posts = get_all_posts()
     posts_list = []
     if posts:
       if args.active_only:

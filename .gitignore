@@ -134,3 +134,4 @@ tmp*
 prev-requirements.txt
 helm/content-api/charts/
 .envrc
+data.json

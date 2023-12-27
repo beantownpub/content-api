@@ -56,7 +56,7 @@ spec:
           exec:
             command:
             - cat
-            - /app/package.json
+            - /opt/app/swagger.yaml
           initialDelaySeconds: 5
           periodSeconds: 60
         readinessProbe:

@@ -26,11 +26,11 @@ APP = Flask(__name__.split(".")[0], instance_path="/opt/app/api")
 API = Api(APP)
 
 PSQL = {
-    'user': SECRET["db_user"],
-    'password': SECRET["db_pass"],
-    'host': SECRET["db_host"],
-    'db': SECRET["db_name"],
-    'port': SECRET["db_port"]
+  'user': SECRET["db_user"],
+  'password': SECRET["db_pass"],
+  'host': SECRET["db_host"],
+  'db': SECRET["db_name"],
+  'port': SECRET["db_port"]
 }
 
 for k, v in PSQL.items():
@@ -63,32 +63,33 @@ LOG.info("Routes initialized")
 def requestData(request):
     request_data = {
         "host": request.host,
-        "origin": request.origin,
+        #"origin": request.origin,
         "path": request.path,
-        "referrer": request.referrer,
-        "remote_addr": request.remote_addr,
-        "http_origin": request.environ.get("HTTP_ORIGIN"),
-        "http_type": "request"
+        #"referrer": request.referrer,
+        "remote_addr": request.remote_addr
+        #"http_origin": request.environ.get("HTTP_ORIGIN"),
+        #"http_type": "request"
     }
     return request_data
 
 
 @APP.after_request
 def after_request(response):
-    # http_data = {
-    #     "http_type": "response",
-    #     "status_code": response.status_code
-    # }
-    request_data = requestData(request)
-    if "healthz" not in request.path:
-        LOG.info(json.dumps(request_data))
-    origin = request.environ.get("HTTP_ORIGIN")
-    #LOG.info(json.dumps(http_data))
-    if origin and origin in ORIGINS:
-        response.headers.add("Access-Control-Allow-Origin", origin)
-    response.headers.add(
-        "Access-Control-Allow-Headers", "Content-Type,Authorization,X-JAL-Comp"
-    )
-    response.headers.add("Access-Control-Allow-Methods", "GET,PUT,POST,DELETE,OPTIONS")
-    response.headers.add("Access-Control-Allow-Credentials", "true")
-    return response
+  # http_data = {
+  #     "http_type": "response",
+  #     "status_code": response.status_code
+  # }
+  #request_data = requestData(request)
+  #if "healthz" not in request.path:
+      #LOG.info(json.dumps(request_data, default=lambda o: o.__dict__))
+      #LOG.info(str(request_data))
+  origin = request.environ.get("HTTP_ORIGIN")
+  #LOG.info(json.dumps(http_data))
+  if origin and origin in ORIGINS:
+    response.headers.add("Access-Control-Allow-Origin", origin)
+  response.headers.add(
+    "Access-Control-Allow-Headers", "Content-Type,Authorization,X-JAL-Comp"
+  )
+  response.headers.add("Access-Control-Allow-Methods", "GET,PUT,POST,DELETE,OPTIONS")
+  response.headers.add("Access-Control-Allow-Credentials", "true")
+  return response

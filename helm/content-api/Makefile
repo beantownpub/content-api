@@ -4,7 +4,7 @@ name ?= content-api
 image ?= content-api
 env ?= dev
 helm_tag ?= $(shell grep 'appVersion:' Chart.yaml | cut -f 2 -d' ')
-port ?= ${CONTENT_API_PORT}
+port ?= ${API_PORT}
 
 ifeq ($(env),dev)
 	context = ${DEV_CONTEXT}
