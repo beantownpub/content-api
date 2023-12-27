@@ -1,0 +1,12 @@
+Dockerfile
+.google_creds.json
+.git/
+.gitignore
+.dockerignore
+Makefile
+README.md
+LICENSE
+requirements.in
+.tool-versions
+scripts/
+helm/
