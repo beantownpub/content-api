@@ -16,8 +16,9 @@ SECRET = get_secret()
 AUTH = HTTPBasicAuth()
 TABLE = 'posts'
 
-class MenuDBException(Exception):
-  """Base class for menu database exceptions"""
+class BlogException(Exception):
+  """Base class for blog exceptions"""
+
 
 LOG_LEVEL = os.environ.get('LOG_LEVEL')
 LOG = init_logger(LOG_LEVEL)
@@ -49,6 +50,7 @@ def unauthorized():
 def post_to_dict(post):
   post_dict = {
     'creation_date': datetime.strftime(post.creation_date, "%Y-%m-%d"),
+    'is_active': post.is_active,
     'title': post.title,
     'slug': post.slug,
     'summary': post.summary,
