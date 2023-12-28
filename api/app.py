@@ -1,4 +1,4 @@
-import json, os
+import os
 from flask import Flask, request
 from flask_restful import Api
 from flask_cors import CORS
@@ -14,13 +14,15 @@ class ContentAPIException(Exception):
 
 SECRET = get_secret()
 ORIGINS = [
-    "https://jalgraves.com",
-    "http://localhost:5033",
-    "http://localhost",
-    "https://www.jalgraves.com",
-    "https://beantown.dev.jalgraves.com",
+  "https://jalgraves.com",
+  "http://localhost:5033",
+  "http://localhost:5037",
+  "http://localhost",
+  "https://www.jalgraves.com",
+  "https://dev.jalgraves.com"
 ]
 
+#ORIGINS = ["*"]
 LOG_LEVEL = os.environ.get("LOG_LEVEL", "INFO")
 APP = Flask(__name__.split(".")[0], instance_path="/opt/app/api")
 API = Api(APP)
@@ -34,9 +36,9 @@ PSQL = {
 }
 
 for k, v in PSQL.items():
-    if not v:
-        msg = f"Env variable not set for database {k}"
-        raise ContentAPIException(msg)
+  if not v:
+    msg = f"Env variable not set for database {k}"
+    raise ContentAPIException(msg)
 
 database = f"postgresql://{PSQL['user']}:{PSQL['password']}@{PSQL['host']}:{PSQL['port']}/{PSQL['db']}"
 
@@ -50,7 +52,7 @@ APP.config["CORS_ALLOW_HEADERS"] = True
 APP.config["CORS_EXPOSE_HEADERS"] = True
 
 cors = CORS(
-    APP, resources={r"/v1/content/*": {"origins": ORIGINS}}, supports_credentials=True
+  APP, resources={r"/v1/content/*": {"origins": ORIGINS}}, supports_credentials=True
 )
 
 LOG = init_logger(LOG_LEVEL)
@@ -61,16 +63,14 @@ init_routes(API)
 LOG.info("Routes initialized")
 
 def requestData(request):
-    request_data = {
-        "host": request.host,
-        #"origin": request.origin,
-        "path": request.path,
-        #"referrer": request.referrer,
-        "remote_addr": request.remote_addr
-        #"http_origin": request.environ.get("HTTP_ORIGIN"),
-        #"http_type": "request"
-    }
-    return request_data
+  request_data = {
+    "host": request.host,
+    "origin": request.origin,
+    "path": request.path,
+    "remote_addr": request.remote_addr,
+    "method": request.method,
+  }
+  return request_data
 
 
 @APP.after_request
@@ -79,13 +79,14 @@ def after_request(response):
   #     "http_type": "response",
   #     "status_code": response.status_code
   # }
-  #request_data = requestData(request)
-  #if "healthz" not in request.path:
-      #LOG.info(json.dumps(request_data, default=lambda o: o.__dict__))
-      #LOG.info(str(request_data))
+  request_data = requestData(request)
+  if "healthz" not in request.path:
+    #LOG.info(json.dumps(request_data, default=lambda o: o.__dict__))
+    LOG.info(str(request_data))
+    LOG.info(response)
   origin = request.environ.get("HTTP_ORIGIN")
-  #LOG.info(json.dumps(http_data))
   if origin and origin in ORIGINS:
+    LOG.info('Origin: %s', origin)
     response.headers.add("Access-Control-Allow-Origin", origin)
   response.headers.add(
     "Access-Control-Allow-Headers", "Content-Type,Authorization,X-JAL-Comp"

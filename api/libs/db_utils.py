@@ -5,10 +5,9 @@ from api.database.models import Post
 from api.database.db import DB
 
 from .logging import init_logger
-from .utils import make_slug
 
 class DBException(Exception):
-    """Base class for menu database exceptions"""
+    """Base class for database exceptions"""
 
 LOG_LEVEL = os.environ.get('LOG_LEVEL')
 LOG = init_logger(LOG_LEVEL)

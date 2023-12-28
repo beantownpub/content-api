@@ -38,8 +38,8 @@ helm/install: helm/context
 		--namespace $(namespace) \
 		--set global.env=$(env) \
 		--set logLevel=$(logLevel) \
-		--set aws.accessKeyId="${AWS_ACCESS_KEY_ID}" \
-		--set aws.secretAccessKey="${AWS_SECRET_ACCESS_KEY}" \
+		--set aws.accessKeyId="${CONTENT_API_AWS_ACCESS_KEY_ID}" \
+		--set aws.secretAccessKey="${CONTENT_API_AWS_SECRET_ACCESS_KEY}" \
 		--set aws.secretName="${AWS_SECRET_NAME}" \
 		--set aws.region="${AWS_DEFAULT_REGION}" \
 		--debug
@@ -80,6 +80,10 @@ helm/creds/services: context
 ## Forward menu-api port
 helm/port_forward: context
 	kubectl port-forward --namespace $(namespace) svc/$(name) $(port):$(port)
+
+## Get pod logs
+helm/logs: context
+	./scripts/get_pod_logs.sh $(namespace) $(name) || true
 
 ## Stop port-forwarding
 helm/stop_pf: context

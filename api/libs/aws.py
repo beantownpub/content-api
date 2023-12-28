@@ -12,6 +12,6 @@ CHARSET = "UTF-8"
 secretsmanager_client = botocore.session.get_session().create_client("secretsmanager", region_name=AWS_REGION)
 
 def get_secret():
-    data = secretsmanager_client.get_secret_value(SecretId=AWS_SECRET_NAME)
-    secret = data["SecretString"]
-    return json.loads(secret)
+  data = secretsmanager_client.get_secret_value(SecretId=AWS_SECRET_NAME)
+  secret = data["SecretString"]
+  return json.loads(secret)

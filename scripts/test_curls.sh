@@ -1,6 +1,6 @@
 #!/bin/bash
 
-AUTH=$(echo -e "${API_USER}:${API_PASS}" | base64)
+AUTH=$(echo -e "${API_USERNAME}:${API_PASSWORD}" | base64)
 AUTH_HEADER="Authorization: Basic ${AUTH}"
 
 function getPosts {
@@ -9,7 +9,7 @@ function getPosts {
         -s \
         -H "${AUTH_HEADER}" \
         -H "Content-Type: application/json" \
-        "localhost:${API_PORT}/v1/content/blog" | jq .
+        "http://localhost:${API_PORT}/v1/content/blog" | jq .
 }
 
 function getPost {
@@ -19,7 +19,7 @@ function getPost {
         -v \
         -H "${AUTH_HEADER}" \
         -H "Content-Type: application/json" \
-        "localhost:${API_PORT}/v1/content/posts/${1}" | jq .
+        "http://localhost:${API_PORT}/v1/content/posts/${1}" | jq .
 }
 
 function createPost {
@@ -30,7 +30,7 @@ function createPost {
         -H "${AUTH_HEADER}" \
         -H "Content-Type: application/json" \
         -d @data.json \
-        "localhost:${API_PORT}/v1/content/posts"
+        "http://localhost:${API_PORT}/v1/content/posts"
 }
 
 function deletePost {
@@ -41,7 +41,7 @@ function deletePost {
         -H "${AUTH_HEADER}" \
         -H "Content-Type: application/json" \
         -X DELETE \
-        "localhost:${API_PORT}/v1/content/posts/${1}"
+        "http://localhost:${API_PORT}/v1/content/posts/${1}"
 }
 
 ARGS=("$@")

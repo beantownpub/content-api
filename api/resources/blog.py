@@ -47,7 +47,6 @@ def unauthorized():
 
 
 def post_to_dict(post):
-  LOG.info('Creation date: %s', datetime.strftime(post.creation_date, "%Y-%m-%d"))
   post_dict = {
     'creation_date': datetime.strftime(post.creation_date, "%Y-%m-%d"),
     'title': post.title,
@@ -83,8 +82,8 @@ def get_slug(args):
 class BlogPostAPI(Resource):
   @AUTH.login_required
   def post(self, slug=None):
-    LOG.info('[POST] Post: %s', slug)
     body = request.json
+    LOG.info('Creating post: %s', body["title"])
     post = get_post_by_title(body["title"])
     if not post:
       body['slug'] = make_slug(body['title'])
