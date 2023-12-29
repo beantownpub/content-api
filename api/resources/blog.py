@@ -49,15 +49,16 @@ def unauthorized():
 
 def post_to_dict(post):
   post_dict = {
-    'creation_date': datetime.strftime(post.creation_date, "%Y-%m-%d"),
-    'is_active': post.is_active,
-    'title': post.title,
-    'slug': post.slug,
-    'summary': post.summary,
-    'uuid': post.uuid,
-    'author': post.author,
-    'body': post.body,
-    'tags': post.tags
+    "creation_date": datetime.strftime(post.creation_date, "%Y-%m-%d"),
+    "id": post.id,
+    "is_active": post.is_active,
+    "title": post.title,
+    "slug": post.slug,
+    "summary": post.summary,
+    "uuid": post.uuid,
+    "author": post.author,
+    "body": post.body,
+    "tags": post.tags
   }
   return post_dict
 
