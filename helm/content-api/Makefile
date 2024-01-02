@@ -90,9 +90,9 @@ helm/stop_pf: context
 	./scripts/stop_port_forward.sh $(port) || true
 
 ## Uninstall deployment
-helm/uninstall:
+helm/uninstall: helm/stop_pf
 	kubectl config use-context $(context)
-	helm uninstall $(name) -n $(namespace)
+	helm uninstall $(name) -n $(namespace) || true
 
 ## run helm template
 helm/template:

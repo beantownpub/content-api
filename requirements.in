@@ -8,6 +8,7 @@ flask-migrate
 flask-restful
 flask-sqlalchemy
 gunicorn
+markdown
 psycopg2
 pytest
 python-dateutil

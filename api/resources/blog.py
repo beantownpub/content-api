@@ -5,6 +5,7 @@ from datetime import datetime
 from flask import Response, request
 from flask_httpauth import HTTPBasicAuth
 from flask_restful import Resource
+from markdown import markdown
 
 from api.database.models import Post
 from api.libs.db_utils import run_db_action
@@ -47,7 +48,7 @@ def unauthorized():
   return Response(**resp)
 
 
-def post_to_dict(post):
+def post_to_dict(post, render_markdown=False):
   post_dict = {
     "creation_date": datetime.strftime(post.creation_date, "%Y-%m-%d"),
     "id": post.id,
@@ -57,9 +58,12 @@ def post_to_dict(post):
     "summary": post.summary,
     "uuid": post.uuid,
     "author": post.author,
-    "body": post.body,
     "tags": post.tags
   }
+  if render_markdown:
+    post_dict["body"] = markdown(post.body)
+  else:
+    post_dict["body"] = post.body
   return post_dict
 
 
@@ -128,16 +132,16 @@ class BlogPostAPI(Resource):
 class BlogPostsAPI(Resource):
   @AUTH.login_required
   def get(self):
-    LOG.info("WTF")
     args = ParamArgs(request.args)
+    LOG.info(args)
     posts = get_all_posts()
     posts_list = []
     if posts:
       if args.active_only:
         for post in posts:
           if post.is_active:
-            posts_list.append(post_to_dict(post))
+            posts_list.append(post_to_dict(post, render_markdown=args.render_markdown))
       else:
         for post in posts:
-          posts_list.append(post_to_dict(post))
+          posts_list.append(post_to_dict(post, render_markdown=args.render_markdown))
     return Response(json.dumps(posts_list), mimetype='application/json', status=200)
