@@ -46,6 +46,13 @@ def get_item_by_slug(table_name, slug):
     return item
 
 
+def get_post_by_tag(table_name, tag):
+  table = TABLES.get(table_name)
+  post = table.query.filter(table.tags.any(tag)).all()
+  LOG.info('POST: %s', post)
+  return post
+
+
 def _db_update(item, table_name, body):
     LOG.debug('DB UPDATE %s | Table: %s | Body: %s', item, table_name, body)
     item.title = body['title']

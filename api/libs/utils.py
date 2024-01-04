@@ -9,7 +9,7 @@ def add_creation_date(message_body):
 
 
 def make_slug(title):
-  slug = title.lower().replace(' ', '-').replace('.', '').replace('&', 'and').strip('*')
+  slug = title.lower().replace(" ", "-").replace(".", "").replace("&", "and").strip("*")
   return slug
 
 
@@ -18,35 +18,46 @@ def make_uuid():
 
 
 class ParamArgs:
-    def __init__(self, args):
-      self.args = args
-      self.active_only = self._convert_to_bool(args.get('active_only'))
-      self.author = args.get('author')
-      self.inactive_only = self._convert_to_bool(args.get('inactive_only'))
-      self.title = args.get('title')
-      self.slug = args.get('slug')
-      self.uuid = args.get('uuid')
-      self.render_markdown = self._convert_to_bool(args.get('render_markdown'))
+  def __init__(self, args):
+    self.args = args
+    self.active_only = self._convert_to_bool(args.get("active_only"))
+    self.author = args.get("author")
+    self.inactive_only = self._convert_to_bool(args.get("inactive_only"))
+    self.title = args.get("title")
+    self.slug = args.get("slug")
+    self.uuid = args.get("uuid")
+    self.tags = args.get("tags")
+    self.render_markdown = self._convert_to_bool(args.get("render_markdown"))
+    self.get_body = self._get_body(args.get("get_body"))
 
-    def __repr__(self):
-      return repr(self.map)
+  def __repr__(self):
+    return repr(self.map)
 
-    @property
-    def map(self):
-      args_dict = {
-        "active_only": self.active_only,
-        "author": self.author,
-        "title": self.title,
-        "slug": self.slug,
-        "uuid": self.uuid,
-        "render_markdown": self.render_markdown
-      }
-      return args_dict
+  @property
+  def map(self):
+    args_dict = {
+      "active_only": self.active_only,
+      "author": self.author,
+      "title": self.title,
+      "slug": self.slug,
+      "uuid": self.uuid,
+      "render_markdown": self.render_markdown,
+      "get_body": self.get_body,
+      "tags": self.tags
+    }
+    return args_dict
+  
+  def _get_body(self, value):
+    if not value or value == "true":
+      value = True
+    elif value == "false":
+        value = False
+    return value
 
-    def _convert_to_bool(self, value):
-      if not isinstance(value, bool):
-        if value == 'true':
-          value = True
-        elif value == 'false' or not value:
-          value = False
-      return value
+  def _convert_to_bool(self, value):
+    if not isinstance(value, bool):
+      if value == "true":
+        value = True
+      elif value == "false" or not value:
+        value = False
+    return value

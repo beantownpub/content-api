@@ -9,7 +9,7 @@ function getPosts {
         -s \
         -H "${AUTH_HEADER}" \
         -H "Content-Type: application/json" \
-        "http://localhost:${API_PORT}/v1/content/blog" | jq .
+        "http://localhost:${API_PORT}/v1/content/blog?tags=terraform" | jq .
 }
 
 function getPost {

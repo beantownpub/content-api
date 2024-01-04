@@ -8,22 +8,22 @@ from flask_restful import Resource
 from markdown import markdown
 
 from api.database.models import Post
-from api.libs.db_utils import run_db_action
+from api.libs.db_utils import run_db_action, get_post_by_tag
 from api.libs.logging import init_logger
 from api.libs.utils import make_uuid, make_slug, ParamArgs
 from api.libs.aws import get_secret
 
 SECRET = get_secret()
 AUTH = HTTPBasicAuth()
-TABLE = 'posts'
+TABLE = "posts"
 
 class BlogException(Exception):
   """Base class for blog exceptions"""
 
 
-LOG_LEVEL = os.environ.get('LOG_LEVEL')
+LOG_LEVEL = os.environ.get("LOG_LEVEL")
 LOG = init_logger(LOG_LEVEL)
-LOG.info('blog.py logging level %s', LOG_LEVEL)
+LOG.info("blog.py logging level %s", LOG_LEVEL)
 
 
 @AUTH.verify_password
@@ -48,7 +48,7 @@ def unauthorized():
   return Response(**resp)
 
 
-def post_to_dict(post, render_markdown=False):
+def post_to_dict(post, get_body=True, render_markdown=False):
   post_dict = {
     "creation_date": datetime.strftime(post.creation_date, "%Y-%m-%d"),
     "id": post.id,
@@ -60,10 +60,11 @@ def post_to_dict(post, render_markdown=False):
     "author": post.author,
     "tags": post.tags
   }
-  if render_markdown:
-    post_dict["body"] = markdown(post.body)
-  else:
-    post_dict["body"] = post.body
+  if get_body:
+    if render_markdown:
+      post_dict["body"] = markdown(post.body)
+    else:
+      post_dict["body"] = post.body
   return post_dict
 
 
@@ -82,21 +83,34 @@ def get_all_posts():
   return Post.query.all()
 
 
+def get_posts_by_tags(tags):
+  posts_list = []
+  for tag in tags:
+    posts = get_post_by_tag(table_name=TABLE, tag=tag)
+    LOG.info(posts)
+    if posts:
+      for post in posts:
+        posts_list.append(post)
+  return posts_list
+
+
+
 def get_slug(args):
-  slug = args.get('slug')
+  slug = args.get("slug")
   return slug
 
 class BlogPostAPI(Resource):
   @AUTH.login_required
   def post(self, slug=None):
     body = request.json
-    LOG.info('Creating post: %s', body["title"])
+    LOG.info("Creating post: %s", body["title"])
     post = get_post_by_title(body["title"])
     if not post:
-      body['slug'] = make_slug(body['title'])
-      if not body.get('uuid'):
-        body['uuid'] = make_uuid()
-      LOG.debug("PATH %s | Slug: %s", request.path, body['slug'])
+      body["slug"] = make_slug(body["title"])
+      if not body.get("uuid"):
+        body["uuid"] = make_uuid()
+      if not isinstance(body["tags"], list):
+        body["tags"] = []
       self.create_item(body)
       resp = {"status": 201}
     else:
@@ -110,23 +124,23 @@ class BlogPostAPI(Resource):
       posts_list = []
       if post:
         posts_list.append(post_to_dict(post))
-      return Response(json.dumps(posts_list), mimetype='application/json', status=200)
+      return Response(json.dumps(posts_list), mimetype="application/json", status=200)
 
   @AUTH.login_required
   def delete(self, slug):
       LOG.info("[DELETE] %s", slug)
       post = get_post_by_slug(slug)
       if not post:
-          LOG.info('404 DELETE Item Post %s not found', slug)
+          LOG.info("404 DELETE Item Post %s not found", slug)
           resp = {"status": 404, "response": "Post not found"}
       else:
-          run_db_action(action='delete', item=post)
+          run_db_action(action="delete", item=post)
           resp = {"status": 204, "response": "Post deleted"}
       return Response(**resp)
 
   def create_item(self, body):
-      LOG.debug('Adding %s to DB', body['slug'])
-      run_db_action(action='create', body=body, table=TABLE)
+      LOG.debug("Adding %s to DB", body["slug"])
+      run_db_action(action="create", body=body, table=TABLE)
 
 
 class BlogPostsAPI(Resource):
@@ -134,14 +148,17 @@ class BlogPostsAPI(Resource):
   def get(self):
     args = ParamArgs(request.args)
     LOG.info(args)
-    posts = get_all_posts()
+    if not args.tags:
+      posts = get_all_posts()
+    else:
+      posts = get_posts_by_tags(args.tags.split(","))
     posts_list = []
     if posts:
       if args.active_only:
         for post in posts:
           if post.is_active:
-            posts_list.append(post_to_dict(post, render_markdown=args.render_markdown))
+            posts_list.append(post_to_dict(post, get_body=args.get_body, render_markdown=args.render_markdown))
       else:
         for post in posts:
-          posts_list.append(post_to_dict(post, render_markdown=args.render_markdown))
-    return Response(json.dumps(posts_list), mimetype='application/json', status=200)
+          posts_list.append(post_to_dict(post, get_body=args.get_body, render_markdown=args.render_markdown))
+    return Response(json.dumps(posts_list), mimetype="application/json", status=200)
